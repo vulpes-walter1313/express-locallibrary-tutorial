@@ -32,7 +32,6 @@ AuthorSchema.virtual("date_of_birth_formatted").get(function () {
 
 // Virtual for formatted DOD
 AuthorSchema.virtual("date_of_death_formatted").get(function () {
-  console.log("Date of ")
   return this.date_of_death
     ? DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED)
     : "";
