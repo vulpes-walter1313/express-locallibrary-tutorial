@@ -36,6 +36,20 @@ AuthorSchema.virtual("date_of_death_formatted").get(function () {
     : "";
 });
 
+// Virtual for inserting to form input type=date field
+AuthorSchema.virtual("date_of_birth_forinput").get(function () {
+  return this.date_of_birth
+    ? DateTime.fromJSDate(this.date_of_birth).toISODate()
+    : "";
+});
+
+// Virtual for inserting to form input type=date field
+AuthorSchema.virtual("date_of_death_forinput").get(function () {
+  return this.date_of_death
+    ? DateTime.fromJSDate(this.date_of_death).toISODate()
+    : "";
+});
+
 AuthorSchema.virtual("lifespan").get(function () {
   const dob = this.date_of_birth
     ? DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED)
