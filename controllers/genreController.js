@@ -76,13 +76,46 @@ exports.genre_create_post = [
 
 // Display Genre delete form on GET.
 exports.genre_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Genre delete GET");
+  const [genre, genre_books] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Book.find({ genre: req.params.id }, "title summary"),
+  ]);
+
+  res.render("genre_delete", {
+    title: "Delete Genre",
+    genre: genre,
+    genre_books: genre_books,
+  });
 });
 
 // Handle Genre delete on POST.
-exports.genre_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Genre delete POST");
-});
+exports.genre_delete_post = [
+  body("genreid")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("genreid must be specified"),
+  asyncHandler(async (req, res, next) => {
+    const [genre, genre_books] = await Promise.all([
+      Genre.findById(req.params.id).exec(),
+      Book.find({ genre: req.params.id }, "title summary"),
+    ]);
+
+    if (genre_books.length > 0) {
+      // Genre has books, render in same way as GET route
+      res.render("genre_delete", {
+        title: "Delete Genre",
+        genre: genre,
+        genre_books: genre_books,
+      });
+      return;
+    } else {
+      // Genre doesn't have books. Delte object and redirect to the list of authors.
+      await Genre.findByIdAndDelete(req.body.genreid);
+      res.redirect("/catalog/genres");
+    }
+  }),
+];
 
 // Display Genre update form on GET.
 exports.genre_update_get = asyncHandler(async (req, res, next) => {
