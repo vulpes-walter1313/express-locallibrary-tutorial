@@ -151,13 +151,46 @@ exports.book_create_post = [
 
 // Display book delete form on GET.
 exports.book_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book delete GET");
+  const [book, book_instances] = await Promise.all([
+    Book.findById(req.params.id).populate("author").exec(),
+    BookInstance.find({ book: req.params.id }).exec(),
+  ]);
+
+  res.render("book_delete", {
+    title: "Delete book",
+    book: book,
+    book_instances: book_instances,
+  });
 });
 
 // Handle book delete on POST.
-exports.book_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book delete POST");
-});
+exports.book_delete_post = [
+  body("bookid")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("bookid must be specified"),
+  asyncHandler(async (req, res, next) => {
+    const [book, book_instances] = await Promise.all([
+      Book.findById(req.params.id).populate("author").exec(),
+      BookInstance.find({ book: req.params.id }).exec(),
+    ]);
+
+    if (book_instances.length > 0) {
+      // Book has instances, render in the same way as GET route
+      res.render("book_delete", {
+        title: "Delete Book",
+        book: book,
+        book_instances: book_instances,
+      });
+      return;
+    } else {
+      // book doesn't have instances. Delete object and redirect to the list of books
+      await Book.findByIdAndDelete(req.body.bookid);
+      res.redirect("/catalog/books");
+    }
+  }),
+];
 
 // Display book update form on GET.
 exports.book_update_get = asyncHandler(async (req, res, next) => {
