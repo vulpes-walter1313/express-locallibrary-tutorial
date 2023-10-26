@@ -7,13 +7,17 @@ const logger = require("morgan");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const catalogRouter = require("./routes/catalog");
+require("dotenv").config();
 
 const app = express();
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
+
 const mongoDB =
-  "mongodb+srv://vosramvulpes:aqWzwQgCgr4U9lNj@cluster0.szqu2c7.mongodb.net/local_library?retryWrites=true&w=majority";
+  process.env.NODE_ENV === "production"
+    ? process.env.MONGODB_URI
+    : process.env.MONGODB_DEV_URI;
 
 main().catch((err) => console.log(err));
 async function main() {
